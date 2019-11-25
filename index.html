@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Tic Tac Toe board using html canvas</title>
+	<link rel="stylesheet" href="./style.css">
+
+</head>
+
+<body>
+	<div id="menu">
+		<div class="menu">
+			<div>
+				<button class="button-link" onclick="startGame(0)">player_01</button>
+			</div>
+			<div>
+				<button class="button-link" onclick="startGame(1)">player_02</button>
+			</div>
+		</div>
+	</div>
+
+	<div id="board" style="display: none;">
+		<div class="center-wrapper-parent">
+			<div class="canvas-wrapper">
+				<canvas id="tic-tac-toe-board" class="center-v"></canvas>
+			</div>
+		</div>
+	</div>
+
+	<script src="./draw.js"></script>
+	<script src="./minimax.js"></script>
+	<script>
+		var board = [
+			[0, 0, 0],
+			[0, 0, 0],
+			[0, 0, 0],
+		];
+
+		var player = 'x';
+		var computer = player === 'x' ? 'o' : 'x';
+
+		var depth = 0;
+
+		canvas.addEventListener('mouseup', function (event) {
+			if (isGameover()) {
+				return;
+			}
+
+			var pos = getBoardPosition(event);
+			if (pos && board[pos.row][pos.col] === 0) {
+				board[pos.row][pos.col] = -1;
+				addPlayingPiece(pos.col, pos.row, player);
+				depth++;
+
+				if (isGameover()) {
+					drawGameoverLine();
+					toggleMenu(true);
+					return;
+				}
+
+				var move = getBestMove(board, depth);
+				board[move.row][move.col] = 1;
+				addPlayingPiece(move.col, move.row, computer);
+				depth++;
+
+				if (isGameover()) {
+					drawGameoverLine();
+					toggleMenu(true);
+					return;
+				}
+			}
+		});
+
+		var isGameover = () => depth === 9 || evaluate(board).v !== 0;
+
+		var startGame = (plr) => {
+			depth = 0;
+			board = [
+				[0, 0, 0],
+				[0, 0, 0],
+				[0, 0, 0],
+			];
+			toggleMenu(false);
+			toggleBoard(true);
+			clearBoard(true);
+			if (plr === 1) {
+				var move = getBestMove(board, depth);
+				board[move.row][move.col] = 1;
+				addPlayingPiece(move.col, move.row, computer);
+				depth++;
+			}
+		}
+
+		var drawGameoverLine = () => {
+			var ind = evaluate(board).i;
+			if (ind < 3) {
+				drawHorizontalLine(ind);
+			} else if (ind < 6) {
+				drawVerticalLine(ind - 3);
+			} else {
+				drawDiagonalLine(ind === 7);
+			}
+		}
+
+		var toggleBoard = (show) => toggleElement(show, 'board');
+		var toggleMenu = (show) => toggleElement(show, 'menu');
+
+		var toggleElement = (show, id) => {
+			var menu = document.getElementById(id)
+			if (show) {
+				menu.style.display = 'block';
+			} else {
+				menu.style.display = 'none';
+			}
+		}
+	</script>
+
+</body>
+
+</html>
